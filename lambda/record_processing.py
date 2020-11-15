@@ -39,34 +39,59 @@ def lambda_handler(event, context):
 
 
 def handle_insert(record):
-    print('Handling INSERT event')
+    print('Handling INSERT event ---------------------------------------------')
     newImage = record['dynamodb']['NewImage']
 
-    recipient = newImage['email']['S']
+    RECIPIENT = newImage['email']['S']
     name = newImage['name']['S']
     msg = newImage['message']['S']
 
     # send msg to the recipient
     subject = 'New Account Created'
+    handle_ses(SENDER, RECIPIENT, subject, msg)
+
+
+def handle_modify(record):
+    print('Handling MODIFY event')
+    # TO-DO
+    pass
+
+
+def handle_remove(record):
+    print('Handling REMOVE event ---------------------------------------------')
+    newImage = record['dynamodb']['OldImage']
+    name = newImage['name']['S']
+    RECIPIENT = newImage['email']['S']
+    subject = "Your Account Removed"
+    msg = "Dear " + name + ",\n\nYour account has been removed in our system!"
+
+    handle_ses(SENDER, RECIPIENT, subject, msg)
+
+
+def handle_ses(send, rec, sub, m):
+    # send  - email sender
+    # rec   - email recipient
+    # sub   - email subject
+    # m     - email body, text format for now, better to be html format
     ses_client = boto3.client('ses', region_name=AWS_REION)
     try:
         # Provide the contents of the email.
         response = ses_client.send_email(
             Destination={
                 'ToAddresses': [
-                    recipient,
+                    rec,
                 ],
             },
             Message={
                 'Body': {
                     'Text': {
                         'Charset': CHARSET,
-                        'Data': msg,
+                        'Data': m,
                     },
                 },
                 'Subject': {
                     'Charset': CHARSET,
-                    'Data': subject,
+                    'Data': sub,
                 },
             },
             Source=SENDER,
@@ -77,20 +102,3 @@ def handle_insert(record):
     else:
         print("Email sent! Message ID:"),
         print(response['MessageId'])
-
-
-def handle_modify(r):
-    print('Handling MODIFY event')
-    # TO-DO
-    pass
-
-
-def handle_remove(r):
-    print('Handling REMOVE event')
-    # TO-DO
-    pass
-
-
-def handle_ses():
-    # if code refacotring is necessary later
-    pass
