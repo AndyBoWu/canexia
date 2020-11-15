@@ -52,9 +52,14 @@ def handle_insert(record):
 
 
 def handle_modify(record):
-    print('Handling MODIFY event')
-    # TO-DO
-    pass
+    print('Handling MODIFY event ---------------------------------------------')
+    newImage = record['dynamodb']['NewImage']
+    name = newImage['name']['S']
+    RECIPIENT = newImage['email']['S']
+    subject = "Message to Your Account"
+    msg = newImage['message']['S']
+
+    handle_ses(SENDER, RECIPIENT, subject, msg)
 
 
 def handle_remove(record):
