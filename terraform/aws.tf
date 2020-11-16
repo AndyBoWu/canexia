@@ -1,3 +1,5 @@
+# make sure you create this profile in your aws config file first
+
 provider "aws" {
   region = "${var.region}"
   # access_key = "${var.access_key}"
