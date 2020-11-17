@@ -1,0 +1,37 @@
+currentBuild.displayName = "LambdaFunc-#"+currentBuild.number
+properties([pipelineTriggers([githubPush()])])
+
+pipeline {
+    agent any
+
+    stages {
+        
+        // co the source code
+        stage('SCM') {
+            steps {
+                git 'https://github.com/AndyBoWu/canexia'
+            }
+        }
+        // unit tests for the lambda function
+        stage('Quality Assurance') {
+            steps {
+                echo "PLACEHOLDER FOR UNIT TESTS"
+            }
+        }
+        // zip the file to ensure file integrity and less transmission time
+        stage('Packaging') {
+            steps {
+                sh 'rm record_processing.zip'
+                zip zipFile: 'record_processing.zip', archive: false, dir: 'lambda'
+                archiveArtifacts artifacts: 'record_processing.zip', fingerprint: true
+            }
+        }
+        // push to s3 
+        stage('Push to S3') {
+            steps {
+                s3Upload(file:'record_processing.zip', bucket:'lambdafunctioncanexia', path:'record_processing.zip')
+            }
+        }
+    }
+
+}
