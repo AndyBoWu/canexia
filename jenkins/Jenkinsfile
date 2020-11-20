@@ -1,5 +1,6 @@
 currentBuild.displayName = "LambdaFunc-#"+currentBuild.number
 properties([pipelineTriggers([githubPush()])])
+// Date: Nov 20, 2020
 
 pipeline {
     agent any
